@@ -379,7 +379,7 @@
         <div class="start-screen active">
             <div class="start-content">
                 <img src="zuzu.png" alt="Zuzu" style="width:150px;max-width:40%;margin:15px auto;display:block;">
-                <div class="hero-icon"></div>
+                <div class="hero-icon">♻️</div>
                 <p style="font-size: 22px; color: #558b2f; margin: 20px 0; line-height: 1.6;">
                     Welcome, Eco-Warrior! 🌟<br><br>
                     Your mission is simple: beat the clock and segregate all the waste items into the correct bins!
@@ -411,7 +411,7 @@
         <!-- Form Screen -->
         <div class="form-screen">
             <div style="text-align: center;">
-                <div style="font-size: 80px; margin: 20px 0;">🎉</div>
+                <div style="font-size: 80px; margin: 20px 0;"></div>
                 <h2 style="color: #2e7d32; font-size: 32px; margin-bottom: 20px;">YOU DID IT, CHAMPION! 🏆</h2>
                 <p style="font-size: 20px; color: #558b2f; margin: 20px 0;">
                     Enter your details to claim your reward from Zuzu!
@@ -707,8 +707,16 @@
         function dragItem(e) {
             if (!draggedItem) return;
             const mousePos = getMousePos(e);
-            draggedItem.x = mousePos.x - dragOffset.x;
-            draggedItem.y = mousePos.y - dragOffset.y;
+            const padding = 20; // Keep items away from edges
+            
+            // Calculate new position
+            let newX = mousePos.x - dragOffset.x;
+            let newY = mousePos.y - dragOffset.y;
+            
+            // Constrain within canvas bounds
+            draggedItem.x = Math.max(padding, Math.min(canvas.width - padding, newX));
+            draggedItem.y = Math.max(padding, Math.min(canvas.height - padding, newY));
+            
             drawGame();
         }
 
