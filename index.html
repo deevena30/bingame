@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eco Adventure - Save the Planet!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1b5e20 0%, #388e3c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(76, 175, 80, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 195, 74, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(102, 187, 106, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            animation: float 15s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(20px, 20px); }
+        }
+        .leaves {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .leaf {
+            position: absolute;
+            font-size: 30px;
+            animation: fall linear infinite;
+            opacity: 0.6;
+        }
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 750px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 60px;
+            margin-bottom: 10px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        h1 {
+            color: #2e7d32;
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .subtitle {
+            color: #558b2f;
+            font-size: 18px;
+            font-weight: 500;
+        }
+        .start-screen, .bonus-game-screen, .form-screen, .final-screen, .failure-screen {
+            display: none;
+        }
+        .start-screen.active, .bonus-game-screen.active, .form-screen.active, .final-screen.active, .failure-screen.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .start-content {
+            text-align: center;
+        }
+        .hero-icon {
+            font-size: 120px;
+            margin: 20px 0;
+            animation: sway 3s ease-in-out infinite;
+        }
+        @keyframes sway {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+        .start-btn, .restart-btn, .submit-btn {
+            background: linear-gradient(135deg, #66bb6a 0%, #43a047 100%);
+            color: white;
+            border: none;
+            padding: 18px 45px;
+            font-size: 22px;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(67, 160, 71, 0.4);
+            font-weight: bold;
+        }
+        .start-btn:hover, .restart-btn:hover, .submit-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(67, 160, 71, 0.6);
+        }
+        .game-canvas {
+            background: linear-gradient(180deg, #f5f5f5 0%, #e8e8e8 100%);
+            border-radius: 20px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            cursor: grab;
+            border: 4px solid #43a047;
+        }
+        .game-canvas:active {
+            cursor: grabbing;
+        }
+        .game-score {
+            font-size: 28px;
+            color: #2e7d32;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .game-timer {
+            font-size: 24px;
+            color: #f57f17;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .game-instructions {
+            background: linear-gradient(135deg, #cfe5cb 0%, #64f140 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #0b6c18;
+            font-weight: 600;
+        }
+        .form-group {
+            margin: 20px 0;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            color: #2e7d32;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 3px solid #66bb6a;
+            border-radius: 15px;
+            font-size: 18px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #43a047;
+            box-shadow: 0 0 15px rgba(67, 160, 71, 0.3);
+        }
+        .winner-message {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            padding: 35px;
+            border-radius: 25px;
+            border: 4px solid #4caf50;
+            margin: 30px 0;
+            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.4);
+        }
+        .winner-message h2 {
+            color:  #2e7d32;
+            font-size: 34px;
+            margin-bottom: 20px;
+        }
+        .winner-message p {
+            color:  #2e7d32;
+            font-size: 22px;
+            line-height: 1.8;
+            font-weight: 600;
+        }
+        .failure-message {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            padding: 35px;
+            border-radius: 25px;
+            border: 4px solid #4caf50;
+            margin: 30px 0;
+            box-shadow: 0 15px 40px rgba(76, 175, 80, 0.4);
+        }
+        .failure-message h2 {
+            color: #2e7d32;
+            font-size: 34px;
+            margin-bottom: 20px;
+        }
+        .failure-message p {
+            color: #2e7d32;
+            font-size: 22px;
+            line-height: 1.8;
+            font-weight: 600;
+        }
+        .bin {
+            position: relative;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .bin:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        .bin::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+        }
+        .bin-label {
+            position: absolute;
+            bottom: 10px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            font-size: 14px;
+        }
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            top: -10px;
+            animation: confetti-fall 3s linear infinite;
+        }
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.15) rotate(-15deg); }
+            75% { transform: scale(1.15) rotate(15deg); }
+        }
+        @media (max-width: 600px) {
+            .game-canvas {
+                width: 100% !important;
+                height: 400px !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="leaves" id="leaves"></div>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🌍</div>
+            <h1>Eco Adventure!</h1>
+            <p class="subtitle">Save the Planet with Waste Segregation! 🎮</p>
+        </div>
+
+        <!-- Start Screen -->
+        <div class="start-screen active">
+            <div class="start-content">
+                <div class="hero-icon">🦸‍♀️🌿</div>
+                <p style="font-size: 22px; color: #558b2f; margin: 20px 0; line-height: 1.6;">
+                    Welcome, Eco-Warrior! 🌟<br><br>
+                    Your mission is simple: beat the clock and segregate all the waste items into the correct bins!
+                    <br>Drag each item to the right bin before the time runs out.
+                    <br><br>
+                    <strong>Make less than 3 mistakes to win!</strong>
+                    <br><br>
+                    Ready? Let's save the planet together! 🏆
+                </p>
+                <button class="start-btn" onclick="startBonusGame()">START THE CHALLENGE! 🚀</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="bonus-game-screen">
+            <div style="text-align: center;">
+                <h2 style="color: #2e7d32; font-size: 32px; margin-bottom: 20px;">🎯 SEGREGATION CHALLENGE</h2>
+                <div class="game-instructions">
+                    🗑️ Drag and drop waste items into the correct bins!<br>
+                    Segregate all items correctly <span style="color: #d32f2f;"><strong>before time runs out</strong></span> to win and meet Zuzu! 🏆<br>
+                    <strong>Green:</strong> Wet Waste | <strong>Blue:</strong> Dry Waste | <strong>Yellow:</strong> Recyclable
+                </div>
+                <div class="game-timer" id="gameTimer">Time Left: 60</div>
+                <div class="game-score" id="gameScore">Correct: 0 | Wrong: 0</div>
+                <canvas id="gameCanvas" class="game-canvas" width="600" height="500"></canvas>
+            </div>
+        </div>
+
+        <!-- Form Screen -->
+        <div class="form-screen">
+            <div style="text-align: center;">
+                <div style="font-size: 80px; margin: 20px 0;">🎉</div>
+                <h2 style="color: #2e7d32; font-size: 32px; margin-bottom: 20px;">YOU DID IT, CHAMPION! 🏆</h2>
+                <p style="font-size: 20px; color: #558b2f; margin: 20px 0;">
+                    Enter your details to claim your reward from Zuzu!
+                </p>
+                <form id="playerForm" action="https://formspree.io/f/mwprqpaw" method="POST">
+                    <div class="form-group">
+                        <label for="playerName">Your Name:</label>
+                        <input type="text" id="playerName" name="playerName" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="playerRoll">Roll Number:</label>
+                        <input type="text" id="playerRoll" name="playerRoll" placeholder="Enter your roll number" required>
+                    </div>
+                    <input type="hidden" id="wrongCount" name="wrongCount" value="">
+                    <input type="hidden" id="gameTime" name="gameTime" value="">
+                    <button type="submit" class="submit-btn">CLAIM REWARD! 🎁</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Final Screen -->
+        <div class="final-screen">
+            <div style="text-align: center;">
+                <div style="font-size: 120px; margin: 20px 0; animation: celebrate 1s ease-in-out infinite;">🏆</div>
+                <div class="winner-message">
+                    <h2>🎊 CONGRATULATIONS! 🎊</h2>
+                    <p><strong>Heyyyy winner!</strong><br><br>
+                    I'm Zuzu, messenger of the Sustainability Cell! 🌿<br><br>
+                    Ready for the final challenge?<br><br>
+                    Come to <strong>OREO</strong> and collect your reward...<br>
+                    See you there, my friend!! 🌍💚✨</p>
+                </div>
+                <div style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 20px; border-radius: 15px; margin: 20px 0;">
+                    <p style="color: #2e7d32; font-size: 18px; font-weight: bold;">
+                        📝 Your Details:<br>
+                        Name: <span id="displayName"></span><br>
+                        Roll: <span id="displayRoll"></span>
+                    </p>
+                </div>
+                <button class="restart-btn" onclick="restartGame()">PLAY AGAIN! 🔄</button>
+            </div>
+        </div>
+
+        <!-- Failure Screen -->
+        <div class="failure-screen">
+            <div style="text-align: center;">
+                <div style="font-size: 120px; margin: 20px 0;">🌿</div>
+                <div class="failure-message">
+                    <h2>Hey friend, I'm Zuzu, messenger of Sustainability Cell!</h2>
+                    <p>
+                    <strong>Let's meet at our orientation on 8th oct to learn more about sustainability!</strong></p>
+                </div>
+                <button class="restart-btn" onclick="restartGame()">TRY AGAIN! 🔄</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Leaves animation
+        function createLeaves() {
+            const leaves = document.getElementById('leaves');
+            const leafEmojis = ['🍃', '🌿', '🍀', '🌱', '🌾', '🪴', '🌺', '🌸'];
+            for (let i = 0; i < 20; i++) {
+                const leaf = document.createElement('div');
+                leaf.className = 'leaf';
+                leaf.textContent = leafEmojis[Math.floor(Math.random() * leafEmojis.length)];
+                leaf.style.left = Math.random() * 100 + '%';
+                leaf.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                leaf.style.animationDelay = Math.random() * 5 + 's';
+                leaves.appendChild(leaf);
+            }
+        }
+        createLeaves();
+
+        // Game variables
+        let gameScore = 0;
+        let wrongCount = 0;
+        let bins = [];
+        let wasteItems = [];
+        let draggedItem = null;
+        let canvas, ctx;
+        let timer = 50;
+        let timerInterval = null;
+        let startTime = null;
+
+        // Item names mapping
+        const itemNames = {
+            "🍎": "Apple Core",
+            "🥬": "Vegetable Leaves",
+            "🍌": "Banana Peel",
+            "☕": "Coffee Grounds",
+            "🧻": "Tissue Paper",
+            "📄": "Used Paper",
+            "🧃": "Juice Pack",
+            "🍪": "Biscuit Wrapper",
+            "🥡": "Takeaway Box",
+            "📦": "Cardboard Box",
+            "📰": "Newspaper",
+            "🥤": "Plastic Bottle",
+            "🧴": "Shampoo Bottle",
+            "🍾": "Glass Bottle"
+        };
+
+        function startBonusGame() {
+            document.querySelector('.start-screen').classList.remove('active');
+            document.querySelector('.bonus-game-screen').classList.add('active');
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            gameScore = 0;
+            wrongCount = 0;
+            timer = 60;
+            startTime = new Date();
+            
+            // Define bins with better styling
+            bins = [
+                { x: 50, y: 400, width: 150, height: 80, color: "#4CAF50", type: "wet", label: "WET WASTE" },
+                { x: 225, y: 400, width: 150, height: 80, color: "#2196F3", type: "dry", label: "DRY WASTE" },
+                { x: 400, y: 400, width: 150, height: 80, color: "#FFEB3B", type: "recycle", label: "RECYCLABLE" }
+            ];
+            
+            // Define waste items with names
+            wasteItems = [
+                // 🌱 Wet Waste (organic, biodegradable)
+                { x: 100, y: 50, text: "🍎", type: "wet", name: "Apple Core" },
+                { x: 200, y: 100, text: "🥬", type: "wet", name: "Vegetable Leaves" },
+                { x: 350, y: 180, text: "🍌", type: "wet", name: "Banana Peel" },
+                { x: 280, y: 120, text: "☕", type: "wet", name: "Coffee Grounds" },
+
+                // 🧴 Dry Waste (non-recyclable, non-biodegradable)
+                { x: 280, y: 250, text: "🧻", type: "dry", name: "Tissue Paper" },
+                { x: 400, y: 320, text: "🧃", type: "dry", name: "Juice Pack" },
+                { x: 150, y: 350, text: "🥡", type: "dry", name: "Takeaway Box" },
+
+                // ♻️ Recyclable Waste
+                { x: 300, y: 70, text: "📦", type: "recycle", name: "Cardboard Box" },
+                { x: 400, y: 130, text: "📰", type: "recycle", name: "Newspaper" },
+                { x: 150, y: 200, text: "🥤", type: "recycle", name: "Plastic Bottle" },
+                { x: 450, y: 220, text: "🧴", type: "recycle", name: "Shampoo Bottle" },
+                { x: 240, y: 180, text: "🍾", type: "recycle", name: "Glass Bottle" },
+            ];
+            
+            drawGame();
+            canvas.addEventListener("mousedown", pickItem);
+            canvas.addEventListener("mousemove", dragItem);
+            canvas.addEventListener("mouseup", dropItem);
+            
+            // Start timer
+            timerInterval = setInterval(() => {
+                timer--;
+                document.getElementById("gameTimer").textContent = `Time Left: ${timer}`;
+                if (timer <= 0) {
+                    clearInterval(timerInterval);
+                    showGameOver();
+                }
+            }, 1000);
+            document.getElementById("gameTimer").textContent = `Time Left: ${timer}`;
+        }
+
+        function drawGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw bins with better styling
+            bins.forEach(bin => {
+                // Draw bin body
+                ctx.fillStyle = bin.color;
+                ctx.fillRect(bin.x, bin.y, bin.width, bin.height);
+                
+                // Draw bin rim
+                ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+                ctx.beginPath();
+                ctx.ellipse(bin.x + bin.width/2, bin.y, bin.width/2, 10, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw bin label
+                ctx.fillStyle = "white";
+                ctx.font = "bold 16px Comic Sans MS";
+                ctx.textAlign = "center";
+                ctx.fillText(bin.label, bin.x + bin.width / 2, bin.y + bin.height / 2 + 8);
+            });
+            
+            // Draw waste items with names
+            wasteItems.forEach(item => {
+                // Draw emoji
+                ctx.font = "40px Comic Sans MS";
+                ctx.fillText(item.text, item.x, item.y);
+                
+                // Draw item name below emoji
+                ctx.font = "12px Comic Sans MS";
+                ctx.fillStyle = "#2e7d32";
+                ctx.textAlign = "center";
+                ctx.fillText(item.name, item.x + 20, item.y + 25);
+            });
+            
+            // Update score display
+            document.getElementById("gameScore").textContent = `Correct: ${gameScore} | Wrong: ${wrongCount}`;
+        }
+
+        function pickItem(e) {
+            const mousePos = getMousePos(e);
+            draggedItem = wasteItems.find(item => 
+                Math.abs(item.x - mousePos.x) < 20 && Math.abs(item.y - mousePos.y) < 20
+            );
+        }
+
+        function dragItem(e) {
+            if (!draggedItem) return;
+            
+            const mousePos = getMousePos(e);
+            draggedItem.x = mousePos.x;
+            draggedItem.y = mousePos.y;
+            drawGame();
+        }
+
+        function dropItem(e) {
+            if (!draggedItem) return;
+            
+            const mousePos = getMousePos(e);
+            const bin = bins.find(b => 
+                mousePos.x > b.x && mousePos.x < b.x + b.width && 
+                mousePos.y > b.y && mousePos.y < b.y + b.height
+            );
+            
+            if (bin) {
+                if (bin.type === draggedItem.type) {
+                    gameScore++;
+                    // Add visual feedback for correct placement
+                    ctx.fillStyle = "rgba(76, 175, 80, 0.3)";
+                    ctx.fillRect(bin.x, bin.y, bin.width, bin.height);
+                    drawGame();
+                } else {
+                    wrongCount++;
+                    // Add visual feedback for incorrect placement
+                    ctx.fillStyle = "rgba(244, 67, 54, 0.3)";
+                    ctx.fillRect(bin.x, bin.y, bin.width, bin.height);
+                    drawGame();
+                }
+                wasteItems = wasteItems.filter(i => i !== draggedItem);
+            }
+            draggedItem = null;
+            drawGame();
+            
+            // Check if game is complete
+            if (wasteItems.length === 0) {
+                clearInterval(timerInterval);
+                setTimeout(() => {
+                    if (wrongCount < 3) {
+                        showFormScreen();
+                    } else {
+                        showFailureScreen();
+                    }
+                }, 1000);
+            }
+        }
+
+        function getMousePos(evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        }
+
+        function showFormScreen() {
+            document.querySelector('.bonus-game-screen').classList.remove('active');
+            document.querySelector('.form-screen').classList.add('active');
+            
+            // Calculate time taken
+            const endTime = new Date();
+            const timeTaken = Math.round((endTime - startTime) / 1000);
+            
+            // Set hidden form values
+            document.getElementById("wrongCount").value = wrongCount;
+            document.getElementById("gameTime").value = timeTaken;
+        }
+
+        function showFailureScreen() {
+            document.querySelector('.bonus-game-screen').classList.remove('active');
+            document.querySelector('.failure-screen').classList.add('active');
+            document.getElementById("mistakeCount").textContent = wrongCount;
+        }
+
+        function showGameOver() {
+            clearInterval(timerInterval);
+            showFailureScreen();
+        }
+
+        // Form submission handling
+        document.getElementById('playerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById("playerName").value;
+            const roll = document.getElementById("playerRoll").value;
+            
+            if (!name || !roll) {
+                alert("Please enter both your name and roll number!");
+                return;
+            }
+            
+            // Submit form data to Formspree
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    // Show success screen
+                    document.getElementById("displayName").textContent = name;
+                    document.getElementById("displayRoll").textContent = roll;
+                    document.querySelector('.form-screen').classList.remove('active');
+                    document.querySelector('.final-screen').classList.add('active');
+                    createConfetti();
+                } else {
+                    alert("There was an error submitting your details. Please try again.");
+                }
+            }).catch(error => {
+                alert("There was an error submitting your details. Please try again.");
+            });
+        });
+
+        function createConfetti() {
+            const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800', '#FF5722'];
+            const confettiContainer = document.body;
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confetti.style.animationDelay = Math.random() * 5 + 's';
+                confettiContainer.appendChild(confetti);
+                
+                // Remove confetti after animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, 7000);
+            }
+        }
+
+        function restartGame() {
+            document.querySelectorAll('.active').forEach(el => el.classList.remove('active'));
+            document.querySelector('.start-screen').classList.add('active');
+        }
+    </script>
+</body>
+</html>
