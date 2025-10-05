@@ -280,10 +280,37 @@
             25% { transform: scale(1.15) rotate(-15deg); }
             75% { transform: scale(1.15) rotate(15deg); }
         }
+        /* ---- MOBILE RESPONSIVE ---- */
         @media (max-width: 600px) {
+            .container {
+                padding: 5px;
+                max-width: 100vw;
+                border-radius: 14px;
+            }
             .game-canvas {
-                width: 100% !important;
-                height: 400px !important;
+                width: 98vw !important;
+                height: 280px !important;
+            }
+            .winner-message, .failure-message {
+                padding: 10px;
+                font-size: 16px;
+            }
+            .header h1 {
+                font-size: 20px;
+            }
+            .logo {
+                font-size: 30px;
+            }
+            .hero-icon {
+                font-size: 42px;
+            }
+            .start-content p,
+            .game-instructions {
+                font-size: 13px !important;
+            }
+            .form-group label,
+            .form-group input {
+                font-size: 15px !important;
             }
         }
     </style>
@@ -300,7 +327,8 @@
         <!-- Start Screen -->
         <div class="start-screen active">
             <div class="start-content">
-                <div class="hero-icon">🦸‍♀️🌿</div>
+                <img src="zuzu.png" alt="Zuzu" style="width:150px;margin:15px auto 15px;display:block;">
+                <div class="hero-icon"></div>
                 <p style="font-size: 22px; color: #558b2f; margin: 20px 0; line-height: 1.6;">
                     Welcome, Eco-Warrior! 🌟<br><br>
                     Your mission is simple: beat the clock and segregate all the waste items into the correct bins!
@@ -379,7 +407,7 @@
         <!-- Failure Screen -->
         <div class="failure-screen">
             <div style="text-align: center;">
-                <div style="font-size: 120px; margin: 20px 0;">🌿</div>
+                <div style="font-size: 120px; margin: 20px 0;"></div>
                 <div class="failure-message">
                     <h2>Hey friend, I'm Zuzu, messenger of Sustainability Cell!</h2>
                     <p>
@@ -413,11 +441,10 @@
         let wasteItems = [];
         let draggedItem = null;
         let canvas, ctx;
-        let timer = 50;
+        let timer = 60;
         let timerInterval = null;
         let startTime = null;
 
-        // Item names mapping
         const itemNames = {
             "🍎": "Apple Core",
             "🥬": "Vegetable Leaves",
@@ -444,41 +471,36 @@
             wrongCount = 0;
             timer = 60;
             startTime = new Date();
-            
-            // Define bins with better styling
+
             bins = [
                 { x: 50, y: 400, width: 150, height: 80, color: "#4CAF50", type: "wet", label: "WET WASTE" },
                 { x: 225, y: 400, width: 150, height: 80, color: "#2196F3", type: "dry", label: "DRY WASTE" },
                 { x: 400, y: 400, width: 150, height: 80, color: "#FFEB3B", type: "recycle", label: "RECYCLABLE" }
             ];
-            
-            // Define waste items with names
+
             wasteItems = [
-                // 🌱 Wet Waste (organic, biodegradable)
                 { x: 100, y: 50, text: "🍎", type: "wet", name: "Apple Core" },
                 { x: 200, y: 100, text: "🥬", type: "wet", name: "Vegetable Leaves" },
                 { x: 350, y: 180, text: "🍌", type: "wet", name: "Banana Peel" },
                 { x: 280, y: 120, text: "☕", type: "wet", name: "Coffee Grounds" },
-
-                // 🧴 Dry Waste (non-recyclable, non-biodegradable)
                 { x: 280, y: 250, text: "🧻", type: "dry", name: "Tissue Paper" },
                 { x: 400, y: 320, text: "🧃", type: "dry", name: "Juice Pack" },
                 { x: 150, y: 350, text: "🥡", type: "dry", name: "Takeaway Box" },
-
-                // ♻️ Recyclable Waste
                 { x: 300, y: 70, text: "📦", type: "recycle", name: "Cardboard Box" },
                 { x: 400, y: 130, text: "📰", type: "recycle", name: "Newspaper" },
                 { x: 150, y: 200, text: "🥤", type: "recycle", name: "Plastic Bottle" },
                 { x: 450, y: 220, text: "🧴", type: "recycle", name: "Shampoo Bottle" },
                 { x: 240, y: 180, text: "🍾", type: "recycle", name: "Glass Bottle" },
             ];
-            
+
             drawGame();
             canvas.addEventListener("mousedown", pickItem);
             canvas.addEventListener("mousemove", dragItem);
             canvas.addEventListener("mouseup", dropItem);
-            
-            // Start timer
+            canvas.addEventListener("touchstart", pickItemTouch, { passive: false });
+            canvas.addEventListener("touchmove", dragItemTouch, { passive: false });
+            canvas.addEventListener("touchend", dropItemTouch, { passive: false });
+
             timerInterval = setInterval(() => {
                 timer--;
                 document.getElementById("gameTimer").textContent = `Time Left: ${timer}`;
@@ -492,41 +514,47 @@
 
         function drawGame() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw bins with better styling
+
             bins.forEach(bin => {
-                // Draw bin body
                 ctx.fillStyle = bin.color;
                 ctx.fillRect(bin.x, bin.y, bin.width, bin.height);
-                
-                // Draw bin rim
                 ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
                 ctx.beginPath();
                 ctx.ellipse(bin.x + bin.width/2, bin.y, bin.width/2, 10, 0, 0, Math.PI * 2);
                 ctx.fill();
-                
-                // Draw bin label
                 ctx.fillStyle = "white";
                 ctx.font = "bold 16px Comic Sans MS";
                 ctx.textAlign = "center";
                 ctx.fillText(bin.label, bin.x + bin.width / 2, bin.y + bin.height / 2 + 8);
             });
-            
-            // Draw waste items with names
+
             wasteItems.forEach(item => {
-                // Draw emoji
                 ctx.font = "40px Comic Sans MS";
                 ctx.fillText(item.text, item.x, item.y);
-                
-                // Draw item name below emoji
                 ctx.font = "12px Comic Sans MS";
                 ctx.fillStyle = "#2e7d32";
                 ctx.textAlign = "center";
                 ctx.fillText(item.name, item.x + 20, item.y + 25);
             });
-            
-            // Update score display
+
             document.getElementById("gameScore").textContent = `Correct: ${gameScore} | Wrong: ${wrongCount}`;
+        }
+
+        function getMousePos(evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        }
+
+        function getTouchPos(evt) {
+            const rect = canvas.getBoundingClientRect();
+            const touch = evt.touches[0] || evt.changedTouches[0];
+            return {
+                x: touch.clientX - rect.left,
+                y: touch.clientY - rect.top
+            };
         }
 
         function pickItem(e) {
@@ -535,35 +563,56 @@
                 Math.abs(item.x - mousePos.x) < 20 && Math.abs(item.y - mousePos.y) < 20
             );
         }
-
         function dragItem(e) {
             if (!draggedItem) return;
-            
             const mousePos = getMousePos(e);
             draggedItem.x = mousePos.x;
             draggedItem.y = mousePos.y;
             drawGame();
         }
-
         function dropItem(e) {
             if (!draggedItem) return;
-            
             const mousePos = getMousePos(e);
-            const bin = bins.find(b => 
-                mousePos.x > b.x && mousePos.x < b.x + b.width && 
-                mousePos.y > b.y && mousePos.y < b.y + b.height
+            handleDrop(mousePos);
+        }
+
+        // Touch event handlers for mobile
+        function pickItemTouch(e) {
+            e.preventDefault();
+            const touchPos = getTouchPos(e);
+            draggedItem = wasteItems.find(item => 
+                Math.abs(item.x - touchPos.x) < 20 && Math.abs(item.y - touchPos.y) < 20
             );
-            
+        }
+        function dragItemTouch(e) {
+            e.preventDefault();
+            if (!draggedItem) return;
+            const touchPos = getTouchPos(e);
+            draggedItem.x = touchPos.x;
+            draggedItem.y = touchPos.y;
+            drawGame();
+        }
+        function dropItemTouch(e) {
+            e.preventDefault();
+            if (!draggedItem) return;
+            const touchPos = getTouchPos(e);
+            handleDrop(touchPos);
+        }
+
+        // Drag-and-drop logic shared for mouse and touch
+        function handleDrop(pos) {
+            const bin = bins.find(b => 
+                pos.x > b.x && pos.x < b.x + b.width && 
+                pos.y > b.y && pos.y < b.y + b.height
+            );
             if (bin) {
                 if (bin.type === draggedItem.type) {
                     gameScore++;
-                    // Add visual feedback for correct placement
                     ctx.fillStyle = "rgba(76, 175, 80, 0.3)";
                     ctx.fillRect(bin.x, bin.y, bin.width, bin.height);
                     drawGame();
                 } else {
                     wrongCount++;
-                    // Add visual feedback for incorrect placement
                     ctx.fillStyle = "rgba(244, 67, 54, 0.3)";
                     ctx.fillRect(bin.x, bin.y, bin.width, bin.height);
                     drawGame();
@@ -572,8 +621,7 @@
             }
             draggedItem = null;
             drawGame();
-            
-            // Check if game is complete
+
             if (wasteItems.length === 0) {
                 clearInterval(timerInterval);
                 setTimeout(() => {
@@ -586,23 +634,11 @@
             }
         }
 
-        function getMousePos(evt) {
-            const rect = canvas.getBoundingClientRect();
-            return {
-                x: evt.clientX - rect.left,
-                y: evt.clientY - rect.top
-            };
-        }
-
         function showFormScreen() {
             document.querySelector('.bonus-game-screen').classList.remove('active');
             document.querySelector('.form-screen').classList.add('active');
-            
-            // Calculate time taken
             const endTime = new Date();
             const timeTaken = Math.round((endTime - startTime) / 1000);
-            
-            // Set hidden form values
             document.getElementById("wrongCount").value = wrongCount;
             document.getElementById("gameTime").value = timeTaken;
         }
@@ -610,7 +646,6 @@
         function showFailureScreen() {
             document.querySelector('.bonus-game-screen').classList.remove('active');
             document.querySelector('.failure-screen').classList.add('active');
-            document.getElementById("mistakeCount").textContent = wrongCount;
         }
 
         function showGameOver() {
@@ -618,21 +653,15 @@
             showFailureScreen();
         }
 
-        // Form submission handling
         document.getElementById('playerForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            
             const name = document.getElementById("playerName").value;
             const roll = document.getElementById("playerRoll").value;
-            
             if (!name || !roll) {
                 alert("Please enter both your name and roll number!");
                 return;
             }
-            
-            // Submit form data to Formspree
             const formData = new FormData(this);
-            
             fetch(this.action, {
                 method: 'POST',
                 body: formData,
@@ -641,7 +670,6 @@
                 }
             }).then(response => {
                 if (response.ok) {
-                    // Show success screen
                     document.getElementById("displayName").textContent = name;
                     document.getElementById("displayRoll").textContent = roll;
                     document.querySelector('.form-screen').classList.remove('active');
@@ -658,7 +686,6 @@
         function createConfetti() {
             const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688', '#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107', '#FF9800', '#FF5722'];
             const confettiContainer = document.body;
-            
             for (let i = 0; i < 100; i++) {
                 const confetti = document.createElement('div');
                 confetti.className = 'confetti';
@@ -669,8 +696,6 @@
                 confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
                 confetti.style.animationDelay = Math.random() * 5 + 's';
                 confettiContainer.appendChild(confetti);
-                
-                // Remove confetti after animation
                 setTimeout(() => {
                     confetti.remove();
                 }, 7000);
