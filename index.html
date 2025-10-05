@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Eco Adventure - Save the Planet!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -11,7 +12,7 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1b5e20 0%, #388e3c 100%);
             min-height: 100vh;
             display: flex;
@@ -371,6 +372,7 @@
     <div class="container">
         <div class="header">
             <div class="logo"></div>
+            <h1>Eco Adventure</h1>
             <p class="subtitle"></p>
         </div>
 
@@ -395,11 +397,11 @@
         <!-- Game Screen -->
         <div class="bonus-game-screen">
             <div style="text-align: center;">
-                <h2 style="color: #2e7d32; font-size: 28px; margin-bottom: 15px;"></h2>
+                <h2 style="color: #2e7d32; font-size: 28px; margin-bottom: 15px;">Waste Segregation Challenge</h2>
                 <div class="game-instructions">
                     🗑️ <strong>Drag and drop</strong> waste items into the correct bins!<br>
                     Segregate all items correctly <span style="color: #d32f2f;"><strong>before time runs out</strong></span> to win and meet Zuzu! 🏆<br>
-                    <strong>Green:</strong> Wet Waste | <strong>Blue:</strong> Dry Waste | <strong>Yellow:</strong> Recyclable
+                    <strong>Green:</strong> Wet Waste | <strong>Blue:</strong> Dry Waste | <strong>Yellow:</strong> Plastic
                 </div>
                 <div class="game-timer" id="gameTimer">Time Left: 60</div>
                 <div class="game-score" id="gameScore">Correct: 0 | Wrong: 0</div>
@@ -434,13 +436,13 @@
         <!-- Final Screen -->
         <div class="final-screen">
             <div style="text-align: center;">
-                <div style="font-size: 100px; margin: 20px 0; animation: celebrate 1s ease-in-out infinite;"></div>
+                <div style="font-size: 100px; margin: 20px 0; animation: celebrate 1s ease-in-out infinite;">🎉</div>
                 <div class="winner-message">
                     <h2>🎊 CONGRATULATIONS! 🎊</h2>
                     <p><strong>Heyyyy winner!</strong><br><br>
                     I'm Zuzu, messenger of the Sustainability Cell! 🌿<br><br>
                     Ready for the final challenge?<br><br>
-                    Come to <strong>sustainability 101, your intro to becoming a campus sustainability warrior on 8th october</strong> and collect your reward...<br>
+                    Come to <strong>sustainability 101, your intro to becoming a campus sustainability warrior on 8th october</strong> and collect your reward...<br>
                     See you there, my friend!! 🌍💚✨</p>
                 </div>
                 <div style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 20px; border-radius: 15px; margin: 20px 0;">
@@ -461,7 +463,7 @@
                 <div class="failure-message">
                     <h2>Hey friend, I'm Zuzu, messenger of Sustainability Cell!</h2>
                     <p>
-                    <strong>Let's meet at sustainability 101, your intro to becoming a campus sustainability warrior on 8th october</strong></p>
+                    <strong>Let's meet at sustainability 101, your intro to becoming a campus sustainability warrior on 8th october!</strong></p>
                 </div>
                 <button class="restart-btn" onclick="restartGame()">TRY AGAIN! 🔄</button>
             </div>
@@ -594,31 +596,22 @@
                     width: binWidth, 
                     height: binHeight, 
                     color: "#FFEB3B", 
-                    type: "recycle", 
-                    label: "RECYCLE" 
+                    type: "plastic", 
+                    label: "PLASTIC" 
                 }
             ];
 
             // Initialize waste items if they haven't been created yet
-            if (wasteItems.length === 0 || wasteItems.length === 12) {
+            if (wasteItems.length === 0 || wasteItems.length === 5) {
                 const itemPadding = isMobile ? 30 : 40;
                 const playArea = binY - 40;
                 
                 wasteItems = [
-                    { x: itemPadding + 50, y: 60, text: "🍎", type: "wet", name: "Apple" },
-                    { x: canvasWidth - itemPadding - 50, y: 60, text: "🥬", type: "wet", name: "Leaves" },
-                    { x: canvasWidth / 2, y: 100, text: "🍌", type: "wet", name: "Banana" },
-                    { x: itemPadding + 30, y: playArea * 0.4, text: "☕", type: "wet", name: "Coffee" },
-                    
-                    { x: canvasWidth - itemPadding - 30, y: playArea * 0.3, text: "🧻", type: "dry", name: "Tissue" },
-                    { x: canvasWidth / 2 - 60, y: playArea * 0.5, text: "🧃", type: "dry", name: "Juice" },
-                    { x: canvasWidth / 2 + 60, y: playArea * 0.65, text: "🥡", type: "dry", name: "Box" },
-                    
-                    { x: itemPadding + 70, y: playArea * 0.6, text: "📦", type: "recycle", name: "Cardboard" },
-                    { x: canvasWidth - itemPadding - 70, y: playArea * 0.55, text: "📰", type: "recycle", name: "Paper" },
-                    { x: canvasWidth / 2, y: playArea * 0.25, text: "🥤", type: "recycle", name: "Bottle" },
-                    { x: itemPadding + 40, y: playArea * 0.8, text: "🧴", type: "recycle", name: "Shampoo" },
-                    { x: canvasWidth - itemPadding - 40, y: playArea * 0.75, text: "🍾", type: "recycle", name: "Glass" },
+                    { x: canvasWidth / 2, y: 100, text: "🍎", type: "wet", name: "Apple" },
+                    { x: canvasWidth / 2 - 60, y: playArea * 0.5, text: "🧃", type: "wet", name: "Juice" },
+                    { x: canvasWidth / 2 + 60, y: playArea * 0.65, text: "🥡", type: "plastic", name: "Box" },
+                    { x: canvasWidth - itemPadding - 70, y: playArea * 0.55, text: "📰", type: "dry", name: "Paper" },
+                    { x: canvasWidth / 2, y: playArea * 0.25, text: "🥤", type: "plastic", name: "Bottle" }
                 ];
             }
         }
@@ -641,7 +634,7 @@
                 // Bin label
                 ctx.fillStyle = "white";
                 const fontSize = Math.max(11, Math.min(14, bin.width / 8));
-                ctx.font = `bold ${fontSize}px Arial`;
+                ctx.font = `bold ${fontSize}px Nunito`;
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 ctx.fillText(bin.label, bin.x + bin.width / 2, bin.y + bin.height / 2);
@@ -659,7 +652,7 @@
                 ctx.fillText(item.text, item.x, item.y);
                 
                 // Draw label
-                ctx.font = `bold ${labelSize}px Arial`;
+                ctx.font = `bold ${labelSize}px Nunito`;
                 ctx.fillStyle = "#1b5e20";
                 ctx.fillText(item.name, item.x, item.y + emojiSize/2 + 8);
             });
